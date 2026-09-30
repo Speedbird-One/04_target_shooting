@@ -3,7 +3,7 @@ Target Shooting (Lab Starter)
 
 Run with:  python3 main.py
 
-Click on targets to hit them.
+Left-click to start a round, then click on targets to hit them.
 """
 
 import pygame
@@ -18,6 +18,7 @@ def main():
     pygame.display.set_caption("Target Shooting")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("consolas", 22)
+    big_font = pygame.font.SysFont("consolas", 64, bold=True)
 
     engine = GameEngine()
     running = True
@@ -29,7 +30,7 @@ def main():
                 engine.handle_click(event.pos)
 
         engine.update()
-        engine.draw(screen, font)
+        engine.draw(screen, font, big_font)
 
         pygame.display.flip()
         clock.tick(60)
