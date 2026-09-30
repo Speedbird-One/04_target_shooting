@@ -10,6 +10,9 @@ def check_hit(targets, click_pos):
     """
     for target in targets:
         rect = target.get_bounding_rect()
-        if rect.collidepoint(click_pos):
+        cx, cy = rect.topleft          # actual centre of the circle
+        radius = rect.width / 2
+        dx, dy = click_pos[0] - cx, click_pos[1] - cy
+        if dx * dx + dy * dy <= radius * radius:
             return target
     return None
