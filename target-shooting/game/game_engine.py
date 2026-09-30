@@ -4,7 +4,8 @@ GameEngine: owns the targets and handles player clicks.
 Targets move horizontally, bouncing off the left and right window
 edges. Two targets move at a faster speed and one moves much slower.
 Targets are spawned in separate horizontal lanes, so they never overlap.
-Still no score/combo or timer yet. That's Tasks 3-4.
+Hits build a combo multiplier that scales the score; a miss resets it.
+No timer yet. That's Task 4.
 """
 
 import random
@@ -27,6 +28,10 @@ NUM_TARGETS = len(TARGET_SPEEDS)
 LANE_MARGIN = 6
 MIN_Y_SEPARATION = 2 * TARGET_RADIUS + LANE_MARGIN
 
+# Scoring
+BASE_POINTS = 10       # points for a hit at multiplier x1
+TEXT_MARGIN = 10       # gap between HUD text and the window edge
+
 
 class GameEngine:
     def __init__(self):
@@ -37,6 +42,8 @@ class GameEngine:
             self.targets.append(self._random_target(speed))
         self.hits = 0
         self.misses = 0
+        self.score = 0
+        self.combo_multiplier = 1   # applies to the NEXT hit
 
     def _random_y(self):
         """Pick a y that is at least MIN_Y_SEPARATION from every target
@@ -60,6 +67,12 @@ class GameEngine:
         target = check_hit(self.targets, pos)
         if target is not None:
             self.hits += 1
+
+            # Score uses the multiplier as it stands *before* this hit,
+            # then the combo grows for the next one.
+            self.score += BASE_POINTS * self.combo_multiplier
+            self.combo_multiplier += 1
+
             # Remove first, so the replacement is only checked against the
             # targets that remain (not the one it is replacing).
             self.targets.remove(target)
@@ -68,6 +81,7 @@ class GameEngine:
             self.targets.append(self._random_target(abs(target.vx)))
         else:
             self.misses += 1
+            self.combo_multiplier = 1   # a miss breaks the combo
 
     def update(self):
         for target in self.targets:
@@ -85,4 +99,19 @@ class GameEngine:
     def draw(self, surface, font):
         from game import renderer
         renderer.draw_scene(surface, self.targets)
-        renderer.draw_text(surface, font, f"Hits: {self.hits}  Misses: {self.misses}", (10, 10))
+
+        # Top left: hit/miss counters
+        renderer.draw_text(surface, font, f"Hits: {self.hits}  Misses: {self.misses}",
+                           (TEXT_MARGIN, TEXT_MARGIN))
+
+        # Top right: score
+        score_text = f"Score: {self.score}"
+        w, _ = font.size(score_text)
+        renderer.draw_text(surface, font, score_text,
+                           (WIDTH - w - TEXT_MARGIN, TEXT_MARGIN))
+
+        # Bottom right: current combo multiplier
+        combo_text = f"Combo: x{self.combo_multiplier}"
+        w, h = font.size(combo_text)
+        renderer.draw_text(surface, font, combo_text,
+                           (WIDTH - w - TEXT_MARGIN, HEIGHT - h - TEXT_MARGIN))
