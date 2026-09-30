@@ -1,5 +1,11 @@
 # Target Shooting Lab
 
+**Name:** Tanmay T A
+
+**SRN:** PES1UG24CS492
+
+**Section:** I
+
 This project is a single-topic Target Shooting game using **Pygame**.
 It introduces students to click-based hit detection, entity movement
 within bounds, and streak-based scoring, using a small, readable
